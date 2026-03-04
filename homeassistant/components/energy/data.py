@@ -205,6 +205,17 @@ class WaterSourceType(TypedDict):
     entity_energy_price: str | None  # entity_id of an entity providing price ($/m³)
     number_energy_price: float | None  # Price for energy ($/m³)
 
+    # Optional dashboard-specific entities for water-system graphics
+    entity_tank_level: NotRequired[str]
+    entity_tank_volume: NotRequired[str]
+    entity_tank_capacity: NotRequired[str]
+    entity_pump_state: NotRequired[str]
+    entity_pump_flow_rate: NotRequired[str]
+    entity_pump_power: NotRequired[str]
+    entity_water_maker_state: NotRequired[str]
+    entity_water_maker_flow_rate: NotRequired[str]
+    monitor_entities: NotRequired[list[str]]
+
 
 type SourceType = (
     GridSourceType
@@ -462,6 +473,15 @@ WATER_SOURCE_SCHEMA = vol.Schema(
         vol.Optional("stat_cost"): vol.Any(str, None),
         vol.Optional("entity_energy_price"): vol.Any(str, None),
         vol.Optional("number_energy_price"): vol.Any(vol.Coerce(float), None),
+        vol.Optional("entity_tank_level"): str,
+        vol.Optional("entity_tank_volume"): str,
+        vol.Optional("entity_tank_capacity"): str,
+        vol.Optional("entity_pump_state"): str,
+        vol.Optional("entity_pump_flow_rate"): str,
+        vol.Optional("entity_pump_power"): str,
+        vol.Optional("entity_water_maker_state"): str,
+        vol.Optional("entity_water_maker_flow_rate"): str,
+        vol.Optional("monitor_entities"): [str],
     }
 )
 
