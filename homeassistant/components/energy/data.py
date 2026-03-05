@@ -217,12 +217,24 @@ class WaterSourceType(TypedDict):
     monitor_entities: NotRequired[list[str]]
 
 
+class WindSourceType(TypedDict):
+    """Dictionary holding the source of wind energy production."""
+
+    type: Literal["wind"]
+
+    stat_energy_from: str
+
+    # Instantaneous power output in W/kW
+    stat_rate: NotRequired[str]
+
+
 type SourceType = (
     GridSourceType
     | SolarSourceType
     | BatterySourceType
     | GasSourceType
     | WaterSourceType
+    | WindSourceType
 )
 
 
@@ -484,6 +496,13 @@ WATER_SOURCE_SCHEMA = vol.Schema(
         vol.Optional("monitor_entities"): [str],
     }
 )
+WIND_SOURCE_SCHEMA = vol.Schema(
+    {
+        vol.Required("type"): "wind",
+        vol.Required("stat_energy_from"): str,
+        vol.Optional("stat_rate"): str,
+    }
+)
 
 
 def check_type_limits(value: list[SourceType]) -> list[SourceType]:
@@ -543,6 +562,7 @@ ENERGY_SOURCE_SCHEMA = vol.All(
                     "battery": BATTERY_SOURCE_SCHEMA,
                     "gas": GAS_SOURCE_SCHEMA,
                     "water": WATER_SOURCE_SCHEMA,
+                    "wind": WIND_SOURCE_SCHEMA,
                 },
             )
         ]

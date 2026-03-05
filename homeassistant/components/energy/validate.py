@@ -693,6 +693,45 @@ def _validate_water_source(
         )
 
 
+def _validate_wind_source(
+    hass: HomeAssistant,
+    source: data.WindSourceType,
+    statistics_metadata: dict[str, tuple[int, recorder.models.StatisticMetaData]],
+    wanted_statistics_metadata: set[str],
+    source_result: ValidationIssues,
+    validate_calls: list[functools.partial[None]],
+) -> None:
+    """Validate wind energy source."""
+    wanted_statistics_metadata.add(source["stat_energy_from"])
+    validate_calls.append(
+        functools.partial(
+            _async_validate_usage_stat,
+            hass,
+            statistics_metadata,
+            source["stat_energy_from"],
+            ENERGY_USAGE_DEVICE_CLASSES,
+            ENERGY_USAGE_UNITS,
+            ENERGY_UNIT_ERROR,
+            source_result,
+        )
+    )
+
+    if stat_rate := source.get("stat_rate"):
+        wanted_statistics_metadata.add(stat_rate)
+        validate_calls.append(
+            functools.partial(
+                _async_validate_power_stat,
+                hass,
+                statistics_metadata,
+                stat_rate,
+                POWER_USAGE_DEVICE_CLASSES,
+                POWER_USAGE_UNITS,
+                POWER_UNIT_ERROR,
+                source_result,
+            )
+        )
+
+
 async def async_validate(hass: HomeAssistant) -> EnergyPreferencesValidation:
     """Validate the energy configuration."""
     manager: data.EnergyManager = await data.async_get_manager(hass)
@@ -753,6 +792,16 @@ async def async_validate(hass: HomeAssistant) -> EnergyPreferencesValidation:
                     ENERGY_UNIT_ERROR,
                     source_result,
                 )
+            )
+
+        elif source["type"] == "wind":
+            _validate_wind_source(
+                hass,
+                source,
+                statistics_metadata,
+                wanted_statistics_metadata,
+                source_result,
+                validate_calls,
             )
 
         elif source["type"] == "battery":
